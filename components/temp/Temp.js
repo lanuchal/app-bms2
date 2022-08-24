@@ -1,6 +1,15 @@
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import React, { useState } from "react";
-import { LineChart } from "react-native-gifted-charts";
+import React, { useState, useEffect } from "react";
+// import { LineChart } from "react-native-gifted-charts";
+import {
+  LineChart,
+  BarChart,
+  PieChart,
+  ProgressChart,
+  ContributionGraph,
+  StackedBarChart,
+} from "react-native-chart-kit";
+
 import axios from "axios";
 import { api_main } from "../../constants/Api_main";
 import { api_path } from "../../constants/Api_path";
@@ -15,11 +24,14 @@ const Temp = ({ date, time_select, itemId }) => {
   var min = [];
   var max = [];
   var traget = [];
+  var label_xx = [];
 
-  const [line_y, setLine_y] = useState(line);
-  const [min_y, setMin_y] = useState(min);
-  const [max_y, setMax_y] = useState(max);
-  const [traget_y, setTraget_y] = useState(traget);
+  const [line_y, setLine_y] = useState([0]);
+  const [min_y, setMin_y] = useState([0]);
+  const [max_y, setMax_y] = useState([0]);
+  const [traget_y, setTraget_y] = useState([0]);
+
+  const [label_x, setLabel_x] = useState([0]);
 
   function convertDate(inputFormat) {
     function pad(s) {
@@ -34,6 +46,22 @@ const Temp = ({ date, time_select, itemId }) => {
     );
   }
 
+  function converth(inputFormat) {
+    function pad(s) {
+      return s < 10 ? "0" + s : s;
+    }
+    var d = new Date(inputFormat);
+    // // console.log("time ", d);
+    return [pad(d.getHours()), pad(d.getMinutes() + 1)].join(":");
+  }
+  function convertM(inputFormat) {
+    function pad(s) {
+      return s < 10 ? "0" + s : s;
+    }
+    var d = new Date(inputFormat);
+    // // console.log("time ", d);
+    return [pad(d.getMonth() + 1), d.getDate()].join("-");
+  }
   const get_brixline = (api, id, start, end, time) => {
     // // console.log(start + " _ " + end);
     let endpoints = [
@@ -45,56 +73,61 @@ const Temp = ({ date, time_select, itemId }) => {
     Promise.all(endpoints.map((endpoint) => axios.get(endpoint)))
       .then(
         axios.spread((...allData) => {
-          var obj;
-          var obj2;
-          var obj3;
-          var obj4;
-          if (allData[1].data.data[0]) {
-            obj = {
-              value: allData[0].data.data[0].value,
-              label: 0,
-            };
-            line.push(obj);
-
-            obj2 = {
-              value: allData[1].data.data[0].min,
-            };
-            min.push(obj2);
-
-            obj3 = {
-              value: allData[2].data.data[0].max,
-            };
-            max.push(obj3);
-
-            obj4 = {
-              value: allData[3].data.data[0].target,
-            };
-            traget.push(obj4);
+          if (allData[0].data.data[0].value) {
+            console.log("success!!!!!!!!!!!");
+          } else {
+            console.log("fali!!!!!!!!!!!");
           }
-
           if (allData[0].data.data) {
             const len = allData[0].data.data.length;
-            if (len == 1) {
-              //   line.push(obj);
-              min.push(obj2);
-              max.push(obj3);
-              traget.push(obj4);
+
+            if (
+              time_select === "5m" ||
+              time_select === "10m" ||
+              time_select === "30m" ||
+              time_select === "1h" ||
+              time_select === "6h"
+            ) {
+              console.log(time_select);
+              if (len == 1) {
+                line.push(allData[0].data.data[0].value);
+                min.push(allData[1].data.data[0].min);
+                max.push(allData[2].data.data[0].max);
+                traget.push(allData[3].data.data[0].target);
+                label_xx.push(converth(allData[0].data.data[0].time));
+              }
+
+              // converth
+              for (let i = 0; i < len; i++) {
+                line.push(allData[0].data.data[i].value);
+                label_xx.push(converth(allData[0].data.data[i].time));
+                min.push(allData[1].data.data[0].min);
+                max.push(allData[2].data.data[0].max);
+                traget.push(allData[3].data.data[0].target);
+              }
+            } else {
+              if (len == 1) {
+                line.push(allData[0].data.data[0].value);
+                min.push(allData[1].data.data[0].min);
+                max.push(allData[2].data.data[0].max);
+                traget.push(allData[3].data.data[0].target);
+                label_xx.push(convertM(allData[0].data.data[0].time));
+              }
+              for (let i = 0; i < len; i++) {
+                line.push(allData[0].data.data[i].value);
+                label_xx.push(convertM(allData[0].data.data[i].time));
+                min.push(allData[1].data.data[0].min);
+                max.push(allData[2].data.data[0].max);
+                traget.push(allData[3].data.data[0].target);
+              }
             }
-            for (let i = 0; i < len; i++) {
-              obj = {
-                value: allData[0].data.data[i].value,
-                label: convertDate(allData[0].data.data[i].time),
-              };
-              line.push(obj);
-              min.push(obj2);
-              max.push(obj3);
-              traget.push(obj4);
-            }
+
             setLine_y(line);
+            setLabel_x(label_xx);
             setMin_y(min);
             setMax_y(max);
             setTraget_y(traget);
-          }
+          } 
         })
       )
       .catch((e) => {
@@ -153,53 +186,71 @@ const Temp = ({ date, time_select, itemId }) => {
           time_select
         );
       }
+      console.log("success!!!!!!!!!!!");
+    } else {
+      console.log("fali!!!!!!!!!!!");
     }
-  }
+  } 
   // console.log("chart temp");
 
   return (
     <View style={styles.box_chart}>
       <Text style={styles.title}>Temp chart</Text>
       <View style={styles.in_chart}>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-around",
-            paddingHorizontal: 20,
-          }}
-        >
-          <Text style={{ color: "#ff7300" }}>● min</Text>
-          <Text style={{ color: "#8b0000" }}>● max</Text>
-          <Text style={{ color: "#008b3f" }}>● line</Text>
-          <Text style={{ color: "#000746" }}>● target</Text>
-        </View>
         <LineChart
-          data={line_y}
-          color1="#008b3f"
-          textColor1="#008b3f"
-          dataPointsColor1="#008b3f"
-          //
-          data2={min_y}
-          color2="#ff7300"
-          dataPointsColor2="none"
-          //
-          data3={max_y}
-          dataPointsColor3="none"
-          color3="#8b0000"
-          //
-          data4={traget_y}
-          dataPointsColor4="none"
-          color4="#000746"
-          //
-          height={250}
-          width={windowWidth - 80}
-          spacing={125}
-          initialSpacing={0}
-          dataPointsHeight={6}
-          dataPointsWidth={6}
-          thickness={2}
+          data={{
+            labels: label_x,
+            datasets: [
+              {
+                data: min_y,
+                color: (opacity = 1) => `rgba(68, 255, 199, ${opacity})`,
+                propsForDots: {
+                  stroke: "#44ffc7",
+                  strokeWidth: "7",
+                  r: "6",
+                },
+                withDots: false,
+              },
+              {
+                data: line_y,
+                color: (opacity = 1) => `rgba(232, 235, 61,${opacity})`,
+                propsForDots: {
+                  r: "4",
+                  stroke: "#e8eb3d",
+                },
+              },
+              {
+                data: max_y,
+                color: (opacity = 1) => `rgba(235, 81, 61,${opacity})`,
+                propsForDots: {
+                  r: "4",
+                  stroke: "#eb513d",
+                },
+                withDots: false,
+              },
+              {
+                data: traget_y,
+                color: (opacity = 1) => `rgba(56, 240, 32,${opacity})`,
+                propsForDots: {
+                  r: "4",
+                  stroke: "#38f020",
+                },
+                withDots: false,
+              },
+            ],
+            legend: ["min", "line", "max", "target"],
+          }}
+          width={Dimensions.get("window").width - 20} // from react-native
+          height={220}
+          yAxisInterval={2} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: "#fff",
+            backgroundGradientFrom: "#fff",
+            backgroundGradientTo: "#fff",
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          }}
         />
       </View>
     </View>

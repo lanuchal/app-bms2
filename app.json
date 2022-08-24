@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Brix Monitoring System (BMS)",
-    "slug": "new_app",
-    "version": "1.0.0",
+    "name": "Brix Monitoring System",
+    "slug": "bmsappv",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,7 +24,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.bmsappv.myapp"
     },
     "web": {
       "favicon": "./assets/icon.png"
