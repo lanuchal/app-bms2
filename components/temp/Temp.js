@@ -89,13 +89,6 @@ const Temp = ({ date, time_select, itemId }) => {
               time_select === "6h"
             ) {
               console.log(time_select);
-              if (len == 1) {
-                line.push(allData[0].data.data[0].value);
-                min.push(allData[1].data.data[0].min);
-                max.push(allData[2].data.data[0].max);
-                traget.push(allData[3].data.data[0].target);
-                label_xx.push(converth(allData[0].data.data[0].time));
-              }
 
               // converth
               for (let i = 0; i < len; i++) {
@@ -105,20 +98,31 @@ const Temp = ({ date, time_select, itemId }) => {
                 max.push(allData[2].data.data[0].max);
                 traget.push(allData[3].data.data[0].target);
               }
-            } else {
-              if (len == 1) {
-                line.push(allData[0].data.data[0].value);
-                min.push(allData[1].data.data[0].min);
-                max.push(allData[2].data.data[0].max);
-                traget.push(allData[3].data.data[0].target);
-                label_xx.push(convertM(allData[0].data.data[0].time));
+              if (len <= 5) {
+                for (let i = len; i < 5; i++) {
+                  line.push(allData[0].data.data[0].value);
+                  min.push(allData[1].data.data[0].min);
+                  max.push(allData[2].data.data[0].max);
+                  traget.push(allData[3].data.data[0].target);
+                  label_xx.push(converth(allData[0].data.data[0].time));
+                }
               }
+            } else {
               for (let i = 0; i < len; i++) {
                 line.push(allData[0].data.data[i].value);
                 label_xx.push(convertM(allData[0].data.data[i].time));
                 min.push(allData[1].data.data[0].min);
                 max.push(allData[2].data.data[0].max);
                 traget.push(allData[3].data.data[0].target);
+              }
+              if (len <= 5) {
+                for (let i = len; i < 5; i++) {
+                  line.push(allData[0].data.data[0].value);
+                  min.push(allData[1].data.data[0].min);
+                  max.push(allData[2].data.data[0].max);
+                  traget.push(allData[3].data.data[0].target);
+                  label_xx.push(converth(allData[0].data.data[0].time));
+                }
               }
             }
 
@@ -210,6 +214,7 @@ const Temp = ({ date, time_select, itemId }) => {
                   r: "6",
                 },
                 withDots: false,
+                strokeWidth:5
               },
               {
                 data: line_y,
@@ -218,6 +223,7 @@ const Temp = ({ date, time_select, itemId }) => {
                   r: "4",
                   stroke: "#e8eb3d",
                 },
+                strokeWidth:5
               },
               {
                 data: max_y,
@@ -227,6 +233,7 @@ const Temp = ({ date, time_select, itemId }) => {
                   stroke: "#eb513d",
                 },
                 withDots: false,
+                strokeWidth:5
               },
               {
                 data: traget_y,
@@ -236,6 +243,7 @@ const Temp = ({ date, time_select, itemId }) => {
                   stroke: "#38f020",
                 },
                 withDots: false,
+                strokeWidth:5
               },
             ],
             legend: ["min", "line", "max", "target"],
@@ -247,7 +255,7 @@ const Temp = ({ date, time_select, itemId }) => {
             backgroundColor: "#fff",
             backgroundGradientFrom: "#fff",
             backgroundGradientTo: "#fff",
-            decimalPlaces: 0,
+            decimalPlaces: 2,
             color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           }}
