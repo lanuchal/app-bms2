@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions ,ScrollView} from "react-native";
 import React, { useState, useEffect } from "react";
 // import { LineChart } from "react-native-gifted-charts";
 import {
@@ -18,6 +18,7 @@ const windowWidth = Dimensions.get("window").width;
 var end_data;
 var start_data;
 var time_;
+var w_ = windowWidth - 20;
 
 const Brix = ({ date, time_select, itemId }) => {
   var line = [];
@@ -73,57 +74,28 @@ const Brix = ({ date, time_select, itemId }) => {
     Promise.all(endpoints.map((endpoint) => axios.get(endpoint)))
       .then(
         axios.spread((...allData) => {
-          if (allData[0].data.data[0].value) {
-            console.log("success!!!!!!!!!!!");
-          } else {
-            console.log("fali!!!!!!!!!!!");
-          }
-
           if (allData[0].data.data) {
             const len = allData[0].data.data.length;
 
-            if (
-              time_select === "5m" ||
-              time_select === "10m" ||
-              time_select === "30m" ||
-              time_select === "1h" ||
-              time_select === "6h"
-            ) {
-              console.log(time_select);
-              // converth
+            console.log(time_select);
 
-              for (let i = 0; i < len; i++) {
-                line.push(allData[0].data.data[i].value);
-                label_xx.push(converth(allData[0].data.data[i].time));
+            // converth
+            for (let i = 0; i < len; i++) {
+              line.push(allData[0].data.data[i].value);
+              label_xx.push(convertDate(allData[0].data.data[i].time));
+              min.push(allData[1].data.data[0].min);
+              max.push(allData[2].data.data[0].max);
+              traget.push(allData[3].data.data[0].target);
+              w_ += 40;
+            }
+            if (len <= 5) {
+              for (let i = len; i < 5; i++) {
+                line.push(allData[0].data.data[0].value);
                 min.push(allData[1].data.data[0].min);
                 max.push(allData[2].data.data[0].max);
                 traget.push(allData[3].data.data[0].target);
-              }
-              if (len <= 5) {
-                for (let i = len; i < 5; i++) {
-                  line.push(allData[0].data.data[0].value);
-                  min.push(allData[1].data.data[0].min);
-                  max.push(allData[2].data.data[0].max);
-                  traget.push(allData[3].data.data[0].target);
-                  label_xx.push(converth(allData[0].data.data[0].time));
-                }
-              }
-            } else {
-              for (let i = 0; i < len; i++) {
-                line.push(allData[0].data.data[i].value);
-                label_xx.push(convertM(allData[0].data.data[i].time));
-                min.push(allData[1].data.data[0].min);
-                max.push(allData[2].data.data[0].max);
-                traget.push(allData[3].data.data[0].target);
-              }
-              if (len <= 5) {
-                for (let i = len; i < 5; i++) {
-                  line.push(allData[0].data.data[0].value);
-                  min.push(allData[1].data.data[0].min);
-                  max.push(allData[2].data.data[0].max);
-                  traget.push(allData[3].data.data[0].target);
-                  label_xx.push(converth(allData[0].data.data[0].time));
-                }
+                label_xx.push(convertDate(allData[0].data.data[0].time));
+                w_ += 40;
               }
             }
 
@@ -199,65 +171,82 @@ const Brix = ({ date, time_select, itemId }) => {
     <View style={styles.box_chart}>
       <Text style={styles.title}>Brix chart</Text>
       <View style={styles.in_chart}>
-        <LineChart
-          data={{
-            labels: label_x,
-            datasets: [
-              {
-                data: min_y,
-                color: (opacity = 1) => `rgba(68, 255, 199, ${opacity})`,
-                propsForDots: {
-                  stroke: "#44ffc7",
-                  strokeWidth: "7",
-                  r: "6",
-                },
-                withDots: false,
-                strokeWidth: 5,
-              },
-              {
-                data: line_y,
-                color: (opacity = 1) => `rgba(232, 235, 61,${opacity})`,
-                propsForDots: {
-                  r: "4",
-                  stroke: "#e8eb3d",
-                },
-                strokeWidth: 5,
-              },
-              {
-                data: max_y,
-                color: (opacity = 1) => `rgba(235, 81, 61,${opacity})`,
-                propsForDots: {
-                  r: "4",
-                  stroke: "#eb513d",
-                },
-                withDots: false,
-                strokeWidth: 5,
-              },
-              {
-                data: traget_y,
-                color: (opacity = 1) => `rgba(56, 240, 32,${opacity})`,
-                propsForDots: {
-                  r: "4",
-                  stroke: "#38f020",
-                },
-                withDots: false,
-                strokeWidth: 5,
-              },
-            ],
-            legend: ["min", "line", "max", "target"],
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-around",
+            paddingHorizontal: 20,
           }}
-          width={Dimensions.get("window").width - 20} // from react-native
-          height={220}
-          yAxisInterval={2} // optional, defaults to 1
-          chartConfig={{
-            backgroundColor: "#fff",
-            backgroundGradientFrom: "#fff",
-            backgroundGradientTo: "#fff",
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          }}
-        />
+        >
+          <Text style={{ color: "#44ffc7" }}>● min</Text>
+          <Text style={{ color: "#eb513d" }}>● max</Text>
+          <Text style={{ color: "#8c8f00" }}>● line</Text>
+          <Text style={{ color: "#38f020" }}>● target</Text>
+        </View>
+        <ScrollView horizontal={true}>
+          <LineChart
+            data={{
+              labels: label_x,
+              datasets: [
+                {
+                  data: min_y,
+                  color: (opacity = 1) => `rgba(68, 255, 199, ${opacity})`,
+                  propsForDots: {
+                    stroke: "#44ffc7",
+                    strokeWidth: "7",
+                    r: "6",
+                  },
+                  withDots: false,
+                  strokeWidth: 5,
+                },
+                {
+                  data: line_y,
+                  color: (opacity = 1) => `rgba(232, 235, 61,${opacity})`,
+                  propsForDots: {
+                    r: "4",
+                    stroke: "#8c8f00",
+                  },
+                  strokeWidth: 5,
+                },
+                {
+                  data: max_y,
+                  color: (opacity = 1) => `rgba(235, 81, 61,${opacity})`,
+                  propsForDots: {
+                    r: "4",
+                    stroke: "#eb513d",
+                  },
+                  withDots: false,
+                  strokeWidth: 5,
+                },
+                {
+                  data: traget_y,
+                  color: (opacity = 1) => `rgba(56, 240, 32,${opacity})`,
+                  propsForDots: {
+                    r: "4",
+                    stroke: "#38f020",
+                  },
+                  withDots: false,
+                  strokeWidth: 5,
+                },
+              ],
+              // legend: ["min", "line", "max", "target"],
+            }}
+            width={w_} // from react-native
+            height={220}
+            yAxisInterval={2} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: "#fff",
+              backgroundGradientFrom: "#fff",
+              backgroundGradientTo: "#fff",
+              decimalPlaces: 2,
+              // useShadowColorFromDataset: true,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+          />
+        </ScrollView>
       </View>
     </View>
   );
