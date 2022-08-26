@@ -12,7 +12,7 @@ import Gauge_brix from "./gauge_brix/Gauge_brix";
 const windowWidth = Dimensions.get("window").width;
 
 const Links = ({ navigation, route }) => {
-  const { itemId } = route.params;
+  const { itemId ,maxs } = route.params;
   const [isLoading_log, setIsLoading_log] = useState(navigation ? true : false);
   const [dateRange, setDateRange] = useState({
     startDate: moment(),
@@ -105,8 +105,8 @@ const Links = ({ navigation, route }) => {
         />
       </View>
       <ScrollView>
-        <Brix date={dateRange} time_select={time_select} itemId={itemId} />
-        <Temp date={dateRange} time_select={time_select} itemId={itemId} />
+        <Brix date={dateRange} time_select={time_select} itemId={itemId} maxs={maxs}/>
+        <Temp date={dateRange} time_select={time_select} itemId={itemId} maxs={maxs}/>
 
         <Gauge_brix
           date={dateRange}

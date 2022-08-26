@@ -129,7 +129,7 @@ const Menu = () => {
               key={key}
               name={index.names}
               component={Links}
-              initialParams={{ itemId: index.id, state_load: true ,max: index.max}}
+              initialParams={{ itemId: index.id, state_load: true , maxs: index.max}}
               options={{
                 headerRight: () => (
                   <Button
